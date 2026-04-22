@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --royal:  #0A47A5;
+  --cobalt: #2563EB;
+  --navy:   #0B1F47;
+  --gold:   #D4A72C;
+  --honey:  #E5B44A;
+  --cream:  #FAF5E6;
+}
+
+html, body { height: 100%; }
+body {
+  background: #FDFBF2;
+  color: #0B1F47;
+}
+
+/* Gradient text — royal → cobalt → gold */
+.gradient-text {
+  background: linear-gradient(90deg, #0A47A5 0%, #2563EB 55%, #D4A72C 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Warm ambient haze for hero backgrounds */
+.grain {
+  background-image:
+    radial-gradient(at 10% 0%, rgba(10, 71, 165, .10) 0%, transparent 50%),
+    radial-gradient(at 90% 0%, rgba(37, 99, 235, .08) 0%, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(212, 167, 44, .08) 0%, transparent 50%);
+}
+
+/* Record-button pulse ring */
+.pulse-ring::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: rgba(212, 167, 44, .5);
+  animation: pulse-ring 1.5s ease-out infinite;
+}
+
+/* Phone frame — the desktop "swipe like your phone" element */
+.phone-frame {
+  filter: drop-shadow(0 24px 40px rgba(11, 31, 71, .25));
+}
+.phone-surface {
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+  scroll-snap-type: y mandatory;
+}
+.phone-surface > * { scroll-snap-align: start; }
+
+.scroll-hide::-webkit-scrollbar { display: none; }
+.scroll-hide { scrollbar-width: none; }
+
+.typing-dot { animation: typing 1.2s infinite; }
+.typing-dot:nth-child(2) { animation-delay: .2s; }
+.typing-dot:nth-child(3) { animation-delay: .4s; }
+
+/* RTL helpers */
+[dir='rtl'] .flip-rtl { transform: scaleX(-1); }
