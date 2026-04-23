@@ -4,34 +4,34 @@
 
 :root {
   color-scheme: light;
-  --royal:  #0A47A5;
-  --cobalt: #2563EB;
-  --navy:   #0B1F47;
-  --gold:   #D4A72C;
-  --honey:  #E5B44A;
-  --cream:  #FAF5E6;
+  --royal:  #2B8BFF; /* primary blue */
+  --cobalt: #5FA2FF; /* hover blue */
+  --navy:   #0D1117; /* ink / near-black */
+  --gold:   #7B2CFF; /* accent purple */
+  --honey:  #9D5FFF; /* accent hover */
+  --cream:  #F1F1F3; /* cool neutral */
 }
 
 html, body { height: 100%; }
 body {
-  background: #FDFBF2;
-  color: #0B1F47;
+  background: #FAFAFB;
+  color: #0D1117;
 }
 
-/* Gradient text — royal → cobalt → gold */
+/* Gradient text — blue → purple */
 .gradient-text {
-  background: linear-gradient(90deg, #0A47A5 0%, #2563EB 55%, #D4A72C 100%);
+  background: linear-gradient(135deg, #2B8BFF 0%, #7B2CFF 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
-/* Warm ambient haze for hero backgrounds */
+/* Ambient haze for hero backgrounds */
 .grain {
   background-image:
-    radial-gradient(at 10% 0%, rgba(10, 71, 165, .10) 0%, transparent 50%),
-    radial-gradient(at 90% 0%, rgba(37, 99, 235, .08) 0%, transparent 50%),
-    radial-gradient(at 50% 100%, rgba(212, 167, 44, .08) 0%, transparent 50%);
+    radial-gradient(at 10% 0%, rgba(43, 139, 255, .12) 0%, transparent 50%),
+    radial-gradient(at 90% 0%, rgba(123, 44, 255, .10) 0%, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(157, 95, 255, .08) 0%, transparent 50%);
 }
 
 /* Record-button pulse ring */
@@ -40,13 +40,13 @@ body {
   position: absolute;
   inset: 0;
   border-radius: 9999px;
-  background: rgba(212, 167, 44, .5);
+  background: rgba(123, 44, 255, .5);
   animation: pulse-ring 1.5s ease-out infinite;
 }
 
 /* Phone frame — the desktop "swipe like your phone" element */
 .phone-frame {
-  filter: drop-shadow(0 24px 40px rgba(11, 31, 71, .25));
+  filter: drop-shadow(0 24px 40px rgba(13, 17, 23, .25));
 }
 .phone-surface {
   touch-action: pan-y;

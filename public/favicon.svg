@@ -1,5 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-  <rect width="48" height="48" rx="13" fill="#0A47A5"/>
-  <text x="24" y="34" text-anchor="middle" fill="#D4A72C" font-family="Inter,system-ui,sans-serif" font-weight="900" font-size="32">R</text>
-  <polygon points="34,34 44,38 34,42" fill="#D4A72C"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2B8BFF"/>
+      <stop offset="100%" stop-color="#7B2CFF"/>
+    </linearGradient>
+  </defs>
+  <rect width="500" height="500" rx="112" ry="112" fill="url(#g)"/>
+  <path d="M110 60 Q80 60 80 90 L80 410 Q80 440 110 440 L390 440 Q420 440 420 410 L420 270 Q420 240 390 240 L240 240 L240 90 Q240 60 210 60 Z" fill="#ffffff"/>
 </svg>

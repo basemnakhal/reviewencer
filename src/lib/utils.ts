@@ -83,6 +83,6 @@ export function truncate(s: string, max: number): string {
 export function hashTint(seed: string): string {
   let h = 0;
   for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) | 0;
-  const palette = ['#0A47A5', '#2563EB', '#D4A72C', '#E5B44A', '#0B1F47'];
+  const palette = ['#2B8BFF', '#5FA2FF', '#7B2CFF', '#9D5FFF', '#0D1117'];
   return palette[Math.abs(h) % palette.length];
 }

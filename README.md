@@ -2,7 +2,7 @@
 
 > AI-native, video-first review platform for the UAE. Chat-first discovery, real phone-verified reviewers, UAE-legal moderation baked in.
 
-![stack](https://img.shields.io/badge/stack-Next.js%2014%20%7C%20Supabase%20%7C%20Claude%20%7C%20Whisper-0A47A5)
+![stack](https://img.shields.io/badge/stack-Next.js%2014%20%7C%20Supabase%20%7C%20Claude%20%7C%20Whisper-2B8BFF)
 ![license](https://img.shields.io/badge/license-proprietary-blue)
 
 Reviewencer is what happens when you cross TikTok, Trustpilot and Perplexity for the UAE market. Ask any question — *"Which UAE bank has the fastest app?"*, *"أي توصيل أكل أسرع؟"* — and get a plain-English answer backed by real, cited reviews. Reviewers drop 60-second videos that auto-transcribe so they're searchable. Every review is moderated against UAE Federal Decree-Law 34/2021 before it goes live.
@@ -13,7 +13,7 @@ Reviewencer is what happens when you cross TikTok, Trustpilot and Perplexity for
 - **Supabase** — Postgres 15 + `pgvector` + Auth (phone OTP) + Storage + RLS
 - **Anthropic Claude** (`claude-sonnet-4-6`) — chat answers, business summaries, UAE-legal moderation
 - **OpenAI** — `text-embedding-3-small` for RAG, `whisper-1` for video transcription
-- **Tailwind CSS** with a custom royal / gold palette
+- **Tailwind CSS** with a custom blue → purple brand palette
 - **IBM Plex Sans Arabic** + **Inter** for bilingual EN/AR
 
 ## Quick start

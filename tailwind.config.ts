@@ -9,45 +9,46 @@ const config: Config = {
         arabic: ['var(--font-plex-arabic)', 'system-ui', 'sans-serif'],
       },
       colors: {
-        // Trust-blue primary — the carry-over from reviewencer.ae, refined
+        // Legacy namespace `royal` — now the primary BLUE scale
         royal: {
-          50:  '#EEF3FB',
-          100: '#D8E3F5',
-          200: '#B3C7EB',
-          300: '#8CAADF',
-          400: '#5281D0',
-          500: '#2563EB', // cobalt — active / hover
-          600: '#0A47A5', // PRIMARY — royal blue
-          700: '#083A87',
-          800: '#072E6B',
-          900: '#0B1F47', // navy — dark surfaces
+          50:  '#EAF3FF',
+          100: '#CCE2FF',
+          200: '#99C6FF',
+          300: '#66A9FF', // used for hover borders
+          400: '#408EFF',
+          500: '#5FA2FF', // hover tint
+          600: '#2B8BFF', // PRIMARY brand blue
+          700: '#1B6FE0',
+          800: '#1454BB',
+          900: '#0D1117', // near-black — text / ink
         },
-        // Gold accent — the other half of the .ae palette
+        // Legacy namespace `gold` — now the accent PURPLE scale
         gold: {
-          50:  '#FAF5E6',
-          100: '#F5EED0',
-          200: '#EDDFA3',
-          300: '#E5CE76',
-          400: '#E5B44A', // honey
-          500: '#D4A72C', // PRIMARY gold
-          600: '#B8891F',
-          700: '#8F6A17',
-          800: '#6A4F10',
-          900: '#463509',
+          50:  '#F3EAFF',
+          100: '#DFC9FF',
+          200: '#C299FF',
+          300: '#A466FF',
+          400: '#9D5FFF', // accent hover
+          500: '#7B2CFF', // PRIMARY accent purple
+          600: '#6418E0',
+          700: '#4F10BB',
+          800: '#3B0A92',
+          900: '#28066B',
         },
+        // Legacy `cream` — now a cool-neutral light scale
         cream: {
-          50:  '#FDFBF2',
-          100: '#FAF5E6',
-          200: '#F5EED0',
+          50:  '#FAFAFB',
+          100: '#F1F1F3',
+          200: '#E2E2E6',
         },
-        // Semantic aliases so components can say bg-brand, text-accent, etc.
-        brand:  { DEFAULT: '#0A47A5', hover: '#2563EB', ink: '#0B1F47' },
-        accent: { DEFAULT: '#D4A72C', hover: '#E5B44A' },
+        // Semantic aliases
+        brand:  { DEFAULT: '#2B8BFF', hover: '#5FA2FF', ink: '#0D1117' },
+        accent: { DEFAULT: '#7B2CFF', hover: '#9D5FFF' },
       },
       backgroundImage: {
-        'brand-gradient': 'linear-gradient(90deg, #0A47A5 0%, #2563EB 55%, #D4A72C 100%)',
-        'gold-gradient':  'linear-gradient(135deg, #D4A72C 0%, #E5B44A 100%)',
-        'royal-gradient': 'linear-gradient(135deg, #0A47A5 0%, #2563EB 100%)',
+        'brand-gradient': 'linear-gradient(135deg, #2B8BFF 0%, #7B2CFF 100%)',
+        'gold-gradient':  'linear-gradient(135deg, #7B2CFF 0%, #9D5FFF 100%)',
+        'royal-gradient': 'linear-gradient(135deg, #2B8BFF 0%, #5FA2FF 100%)',
       },
       animation: {
         'pulse-ring': 'pulse-ring 1.5s ease-out infinite',

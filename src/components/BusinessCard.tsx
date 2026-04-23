@@ -20,7 +20,7 @@ export function BusinessCard({ business, className }: Props) {
       <div className="flex items-start gap-3 p-4">
         <div
           className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-2xl text-white shadow-inner"
-          style={{ background: business.brand_color ?? '#0A47A5' }}
+          style={{ background: business.brand_color ?? '#2B8BFF' }}
         >
           <span aria-hidden>{business.logo_emoji ?? cat?.emoji ?? '🏢'}</span>
         </div>

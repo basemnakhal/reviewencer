@@ -87,9 +87,9 @@ export function ProfileEditor({ initial }: Props) {
           background: white;
           padding: 0.5rem 0.75rem;
           font-size: 0.875rem;
-          color: #0B1F47;
+          color: #0D1117;
         }
-        .input:focus { outline: none; border-color: #2563EB; }
+        .input:focus { outline: none; border-color: #2B8BFF; }
       `}</style>
     </div>
   );
