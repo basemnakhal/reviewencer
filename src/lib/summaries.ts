@@ -80,7 +80,7 @@ export async function rebuildSummary(businessId: string): Promise<AiSummary> {
   const supa = createSupabaseServiceClient();
 
   const { data: biz, error: bizErr } = await supa
-    .from('businesses').select('id, name').eq('id', businessId).single();
+    .from('businesses').select('id, name:name_en').eq('id', businessId).single();
   if (bizErr || !biz) throw bizErr ?? new Error('business not found');
 
   const { data: reviews, error: revErr } = await supa

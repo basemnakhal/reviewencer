@@ -24,7 +24,7 @@ export default async function ProfilePage() {
 
   const { data: myReviews } = await supabase
     .from('reviews')
-    .select('id,rating,text,tags,created_at,moderation_status,video_url,business:businesses(name,slug,logo_emoji)')
+    .select('id,rating,text,tags,created_at,moderation_status,video_url,business:businesses(name:name_en,slug)')
     .eq('author_id', user.id)
     .order('created_at', { ascending: false })
     .limit(30);
@@ -72,10 +72,11 @@ export default async function ProfilePage() {
             {published.map((r) => (
               <ReviewCard
                 key={r.id}
+                reviewId={r.id}
                 rating={r.rating}
                 text={r.text}
-                tags={r.tags}
                 createdAt={r.created_at}
+                businessName={r.business?.name}
                 author={{ display_name: profile?.display_name ?? null, handle: profile?.handle ?? null }}
                 hasVideo={!!r.video_url}
               />

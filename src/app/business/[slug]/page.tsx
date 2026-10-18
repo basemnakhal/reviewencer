@@ -9,6 +9,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { getCategory } from '@/lib/categories';
 import { formatCount } from '@/lib/utils';
 import type { Business, AiSummary as AiSummaryType } from '@/lib/types';
+import { BusinessLogo } from '@/components/BusinessLogo';
 
 interface Props { params: { slug: string } }
 
@@ -17,7 +18,7 @@ export const revalidate = 30;
 export async function generateMetadata({ params }: Props) {
   const supabase = createSupabaseServerClient();
   const { data: b } = await supabase
-    .from('businesses')
+    .from('business_cards')
     .select('name,tagline')
     .eq('slug', params.slug)
     .maybeSingle();
@@ -32,8 +33,8 @@ export default async function BusinessPage({ params }: Props) {
   const supabase = createSupabaseServerClient();
 
   const { data: biz } = await supabase
-    .from('businesses')
-    .select('*')
+    .from('business_cards')
+    .select('id,slug,name,tagline,logo_url,verified,category_id,category_label')
     .eq('slug', params.slug)
     .maybeSingle();
 
@@ -46,7 +47,7 @@ export default async function BusinessPage({ params }: Props) {
     supabase.from('ai_summaries').select('*').eq('business_id', business.id).maybeSingle(),
     supabase
       .from('reviews')
-      .select('id,rating,text,tags,created_at,video_url,author:profiles(display_name,handle,avatar_url)')
+      .select('id,rating,text,tags,created_at,video_url,author:profiles(display_name,handle,avatar_url,tier)')
       .eq('business_id', business.id)
       .eq('moderation_status', 'published')
       .order('published_at', { ascending: false })
@@ -68,7 +69,7 @@ export default async function BusinessPage({ params }: Props) {
       business: {
         name:     business.name,
         slug:     business.slug,
-        emoji:    business.logo_emoji,
+        logo:     business.logo_url,
         verified: business.verified,
       },
     }));
@@ -89,17 +90,16 @@ export default async function BusinessPage({ params }: Props) {
         <div className="bg-brand-gradient px-6 py-6 text-white">
           <div className="flex items-center gap-4">
             <div
-              className="flex h-16 w-16 items-center justify-center rounded-2xl text-3xl shadow-lg"
-              style={{ background: business.brand_color ?? 'rgba(255,255,255,0.2)' }}
+              className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-white/20 text-3xl shadow-lg"
             >
-              <span aria-hidden>{business.logo_emoji ?? cat?.emoji ?? '🏢'}</span>
+              <BusinessLogo logo={business.logo_url} fallback={cat?.emoji} />
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
                 <h1 className="truncate text-2xl font-black">{business.name}</h1>
                 {business.verified && <ShieldCheck size={18} className="text-white/90" />}
               </div>
-              <p className="text-sm text-white/85">{business.tagline ?? cat?.label}</p>
+              <p className="text-sm text-white/85">{business.tagline ?? business.category_label}</p>
             </div>
           </div>
 
@@ -109,11 +109,9 @@ export default async function BusinessPage({ params }: Props) {
               <span className="font-black">{avg.toFixed(1)}</span>
               <span className="text-white/70">· {formatCount(reviews.length)} reviews</span>
             </div>
-            {cat && (
-              <span className="rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold backdrop-blur">
-                {cat.emoji} {cat.label}
-              </span>
-            )}
+            <span className="rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold backdrop-blur">
+              {cat?.emoji ?? '🏷️'} {cat?.label ?? business.category_label}
+            </span>
           </div>
         </div>
       </header>
@@ -162,12 +160,14 @@ export default async function BusinessPage({ params }: Props) {
             {reviews.map((r) => (
               <ReviewCard
                 key={r.id}
+                reviewId={r.id}
                 rating={r.rating}
                 text={r.text}
-                tags={r.tags}
                 createdAt={r.created_at}
                 author={r.author}
                 hasVideo={!!r.video_url}
+                businessName={business.name}
+                category={cat?.label ?? business.category_label}
               />
             ))}
           </div>

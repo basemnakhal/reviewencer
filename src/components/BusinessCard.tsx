@@ -4,6 +4,7 @@ import { StarRating } from '@/components/ui/StarRating';
 import { formatCount, cn } from '@/lib/utils';
 import type { BusinessCard as BusinessCardType } from '@/lib/types';
 import { getCategory } from '@/lib/categories';
+import { BusinessLogo } from '@/components/BusinessLogo';
 
 interface Props { business: BusinessCardType; className?: string }
 
@@ -19,10 +20,9 @@ export function BusinessCard({ business, className }: Props) {
     >
       <div className="flex items-start gap-3 p-4">
         <div
-          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-2xl text-white shadow-inner"
-          style={{ background: business.brand_color ?? '#2B8BFF' }}
+          className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-royal-50 text-2xl shadow-inner"
         >
-          <span aria-hidden>{business.logo_emoji ?? cat?.emoji ?? '🏢'}</span>
+          <BusinessLogo logo={business.logo_url} fallback={cat?.emoji} />
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
@@ -45,7 +45,7 @@ export function BusinessCard({ business, className }: Props) {
 
       <div className="flex items-center justify-between border-t border-stone-100 px-4 py-2 text-[11px] font-semibold text-stone-500">
         <span>{formatCount(business.review_count)} reviews</span>
-        {cat && <span className="rounded-full bg-royal-50 px-2 py-0.5 text-royal-700">{cat.label}</span>}
+        <span className="rounded-full bg-royal-50 px-2 py-0.5 text-royal-700">{cat?.label ?? business.category_label}</span>
       </div>
     </Link>
   );

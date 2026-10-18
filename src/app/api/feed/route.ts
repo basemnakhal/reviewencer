@@ -24,7 +24,7 @@ export async function GET(req: Request) {
     .from('reviews')
     .select(`
       id, rating, text, tags, video_url, transcript_source, published_at,
-      business:businesses(id, slug, name, category_id, logo_emoji, brand_color),
+      business:businesses!inner(id, slug, name:name_en, logo_url, category:categories!inner(slug)),
       author:profiles(id, handle, display_name, avatar_url)
     `)
     .eq('moderation_status', 'published')
@@ -33,7 +33,7 @@ export async function GET(req: Request) {
 
   if (onlyVideo) q = q.not('video_url', 'is', null);
   if (cursor)    q = q.lt('published_at', cursor);
-  if (category)  q = q.eq('business.category_id', category);
+  if (category)  q = q.eq('business.category.slug', category);
 
   const { data, error } = await q;
   if (error) return err(error.message, 500);

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Play, Volume2, VolumeX, Heart, MessageCircle, Share2, ShieldCheck } from 'lucide-react';
 import { StarRating } from '@/components/ui/StarRating';
 import { cn, formatCount } from '@/lib/utils';
+import { BusinessLogo } from '@/components/BusinessLogo';
 
 export interface VideoReviewCardData {
   id:            string;
@@ -19,7 +20,7 @@ export interface VideoReviewCardData {
   business: {
     name:  string;
     slug:  string;
-    emoji?: string | null;
+    logo?: string | null;
     verified?: boolean;
   };
   likes?:     number;
@@ -72,7 +73,7 @@ export function VideoReviewCard({ review, active, onLike, onOpen, className }: P
       ) : (
         <div className="flex h-full w-full items-center justify-center bg-royal-gradient text-white">
           <div className="text-center px-6">
-            <div className="text-4xl mb-2">{review.business.emoji ?? '💬'}</div>
+            <div className="mx-auto mb-2 h-10 w-10 overflow-hidden rounded-lg text-4xl"><BusinessLogo logo={review.business.logo} fallback="💬" /></div>
             <p className="text-sm font-semibold leading-relaxed">{review.text}</p>
           </div>
         </div>
@@ -99,7 +100,7 @@ export function VideoReviewCard({ review, active, onLike, onOpen, className }: P
         onClick={onOpen}
         className="absolute left-3 top-3 flex items-center gap-2 rounded-full bg-white/95 px-2.5 py-1.5 text-xs font-black text-royal-900 shadow backdrop-blur"
       >
-        <span className="text-sm">{review.business.emoji ?? '🏢'}</span>
+        <span className="inline-flex h-4 w-4 items-center justify-center overflow-hidden rounded text-sm"><BusinessLogo logo={review.business.logo} /></span>
         <span className="max-w-[120px] truncate">{review.business.name}</span>
         {review.business.verified && <ShieldCheck size={12} className="text-royal-600" />}
       </button>

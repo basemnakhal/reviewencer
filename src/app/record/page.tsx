@@ -17,11 +17,11 @@ export default async function RecordPage({ searchParams }: Props) {
 
   const { data: businessRows } = await supabase
     .from('businesses')
-    .select('id,name,slug,logo_emoji')
-    .order('name', { ascending: true });
+    .select('id,name:name_en,slug')
+    .order('name_en', { ascending: true });
 
   const businesses = (businessRows ?? []).map((b) => ({
-    id: b.id, name: b.name, slug: b.slug, emoji: b.logo_emoji,
+    id: b.id, name: b.name, slug: b.slug,
   }));
 
   return (

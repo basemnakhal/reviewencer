@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { StarRating } from '@/components/ui/StarRating';
 import { AlertTriangle, Check, X, Play } from 'lucide-react';
 import { relativeTime, cn } from '@/lib/utils';
+import { BusinessLogo } from '@/components/BusinessLogo';
 
 interface Item {
   id: string;
@@ -15,7 +16,7 @@ interface Item {
   moderation_rationale: string | null;
   risk_categories: string[] | null;
   created_at: string;
-  business: { name: string; slug: string; logo_emoji?: string | null } | null;
+  business: { name: string; slug: string; logo_url?: string | null } | null;
   author:   { display_name: string | null; handle: string | null } | null;
 }
 
@@ -73,7 +74,7 @@ export function ModerationQueue({ initialItems }: Props) {
           <div className="grid gap-4 p-4 md:grid-cols-[1fr_280px]">
             <div>
               <div className="mb-2 flex items-center gap-2">
-                <span className="text-lg">{it.business?.logo_emoji ?? '🏢'}</span>
+                <span className="inline-flex h-6 w-6 items-center justify-center overflow-hidden rounded text-lg"><BusinessLogo logo={it.business?.logo_url} /></span>
                 <span className="font-black text-royal-900">{it.business?.name ?? 'Unknown'}</span>
                 <StarRating value={it.rating} size={12} />
               </div>

@@ -32,7 +32,7 @@ export default async function ModerationPage() {
   // Server-side pre-fetch for snappy first paint; client component refreshes after.
   const { data: items } = await supabase
     .from('reviews')
-    .select('id,text,rating,tags,video_url,moderation_status,moderation_rationale,risk_categories,created_at,business:businesses(name,slug,logo_emoji),author:profiles(display_name,handle)')
+    .select('id,text,rating,tags,video_url,moderation_status,moderation_rationale,risk_categories,created_at,business:businesses(name:name_en,slug,logo_url),author:profiles(display_name,handle)')
     .eq('moderation_status', 'flagged')
     .order('created_at', { ascending: true })
     .limit(50);

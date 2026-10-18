@@ -3,12 +3,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Video, Square, Mic, Loader2, CheckCircle2, AlertTriangle, ArrowRight, RefreshCw } from 'lucide-react';
-import { StarRating } from '@/components/ui/StarRating';
+import { ThumbPicker, ThumbRating, ThumbValue } from "@/components/ui/ThumbRating";
 import { cn, truncate } from '@/lib/utils';
 
 type Step = 'intro' | 'record' | 'preview' | 'transcribing' | 'edit' | 'submitting' | 'done' | 'error';
 
-interface Business { id: string; name: string; slug: string; emoji?: string | null }
+interface Business { id: string; name: string; slug: string }
 
 interface Props {
   businesses: Business[];
@@ -21,7 +21,7 @@ export function RecordFlow({ businesses, defaultBusinessId }: Props) {
   const router = useRouter();
   const [step, setStep] = useState<Step>('intro');
   const [businessId, setBusinessId] = useState<string>(defaultBusinessId ?? businesses[0]?.id ?? '');
-  const [rating, setRating] = useState<number>(5);
+  const [rating, setRating] = useState<ThumbValue>(5);
   const [tags, setTags] = useState<string[]>([]);
   const [text, setText] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -192,14 +192,14 @@ export function RecordFlow({ businesses, defaultBusinessId }: Props) {
             >
               {businesses.map((b) => (
                 <option key={b.id} value={b.id}>
-                  {(b.emoji ?? '🏢') + ' ' + b.name}
+                  {b.name}
                 </option>
               ))}
             </select>
           </Field>
 
           <Field label="Your rating">
-            <StarPicker value={rating} onChange={setRating} />
+            <ThumbPicker value={rating} onChange={setRating} />
           </Field>
 
           <Field label="Tags (optional)">
@@ -388,29 +388,6 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-function StarPicker({ value, onChange }: { value: number; onChange: (v: number) => void }) {
-  return (
-    <div className="flex items-center gap-1">
-      {[1, 2, 3, 4, 5].map((n) => (
-        <button
-          type="button"
-          key={n}
-          onClick={() => onChange(n)}
-          className={cn(
-            'h-9 w-9 rounded-lg text-xl transition',
-            n <= value ? 'bg-gold-100 text-gold-600' : 'bg-stone-100 text-stone-400',
-          )}
-          aria-label={`${n} star${n > 1 ? 's' : ''}`}
-        >
-          ★
-        </button>
-      ))}
-      <span className="ml-2 text-sm font-bold text-royal-900">
-        <StarRating value={value} size={12} label />
-      </span>
-    </div>
-  );
-}
 
 function TagPicker({ value, onChange }: { value: string[]; onChange: (tags: string[]) => void }) {
   const options = ['service', 'value', 'speed', 'app', 'staff', 'delivery', 'quality', 'price'];

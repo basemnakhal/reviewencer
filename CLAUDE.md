@@ -24,7 +24,14 @@ Nothing should depend on a local machine: code lives on GitHub, backend on Supab
 - `reviews.moderation_status`: `pending` → `published` / `flagged` / `rejected`. Feed shows only `published`. The mobile app inserts `pending`, then calls `moderate-review`; decisions are logged in `moderation_events`.
 - Security model (see `20261018120000_security_hardening.sql`): clients can insert reviews only as themselves with status `pending`, and can only write content columns; profiles' `role`/`tier` are not client-writable; `private.is_moderator_or_admin()` backs moderator RLS. Status changes happen server-side (service role) only.
 - Tiers come from Legit votes via triggers (`sync_legit_count_and_tier`, `trigger_sync_author_tier`).
-- Known stale: `match_reviews()` (web RAG) still references `businesses.name` / text `category_id`.
+- Web compatibility views (`20261018150000_web_compat_views.sql`): `business_cards` and `feed_reviews` expose the new schema in the shape the web app reads (`name`, `logo_url`, `category_id` = category **slug**). `match_reviews()` filters by category slug.
+- `businesses` currently holds the 11,039 `source = 'legacy_import'` rows. `PHASE1_BUILD.md` describes the intended curated rebuild (Time Out + regulators + Google Places); phases C–F were never run. Swap legacy rows out when curated data exists.
+
+## Web app (root)
+
+- `npx pnpm@9 install`, `npx pnpm@9 build`, `npx pnpm@9 dev` (pnpm lockfile). Env in `.env.local` (see `.env.example`); scripts in `scripts/` read keys from `.env.local` — never hardcode keys.
+- Categories: `src/lib/categories.ts` lists featured slugs; `categoryLabel(slug)` renders any slug. Logos: `<BusinessLogo logo={url} />`.
+- `/record` loads businesses for a dropdown — PostgREST caps it at 1000 rows; needs a search box before real use.
 
 ## Mobile app (`mobile/`)
 

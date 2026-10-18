@@ -5,12 +5,12 @@ import { usePathname } from 'next/navigation';
 import { Sparkles, Compass, Video, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-const tabs = [
+const tabs: { href: string; label: string; Icon: typeof Sparkles; accent?: boolean }[] = [
   { href: '/ask',     label: 'Ask',    Icon: Sparkles },
   { href: '/feed',    label: 'Feed',   Icon: Compass  },
   { href: '/record',  label: 'Record', Icon: Video,    accent: true },
   { href: '/profile', label: 'Me',     Icon: User },
-] as const;
+];
 
 export function TabBar() {
   const pathname = usePathname();

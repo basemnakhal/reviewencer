@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Trophy } from 'lucide-react';
 import { Hero } from '@/components/Hero';
 import { CategoryStrip } from '@/components/CategoryStrip';
 import { BusinessCard } from '@/components/BusinessCard';
@@ -12,7 +13,6 @@ export const revalidate = 60;
 export default async function HomePage() {
   const supabase = createSupabaseServerClient();
 
-  // Top businesses by avg_rating from the business_cards view.
   const { data: cards } = await supabase
     .from('business_cards')
     .select('*')
@@ -20,7 +20,6 @@ export default async function HomePage() {
     .order('review_count', { ascending: false })
     .limit(6);
 
-  // Recent video reviews (for phone-frame rail).
   const { data: vids } = await supabase
     .from('feed_reviews')
     .select('*')
@@ -44,7 +43,7 @@ export default async function HomePage() {
     business: {
       name:     r.business_name,
       slug:     r.business_slug,
-      emoji:    r.business_logo_emoji,
+      logo:     r.business_logo_url,
       verified: r.business_verified,
     },
     likes:    r.like_count ?? 0,
@@ -53,15 +52,23 @@ export default async function HomePage() {
 
   return (
     <div>
-      {/* Hero */}
-      <section className="relative">
-        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-8 md:grid-cols-[1fr_320px] md:gap-10 md:py-12">
-          <Hero />
+      {/* Full width slogan banner */}
+      <div className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-royal-600 to-gold-500 px-4 py-1">
+        <Trophy size={14} className="text-white flex-shrink-0" />
+        <p className="text-sm font-black text-white tracking-wide">
+          Championing the UAE's world-class customer experience!
+        </p>
+      </div>
 
-          {/* Desktop phone preview — swipeable video feed */}
-          <aside className="hidden md:flex md:items-center md:justify-center">
-            <PhonePreview reviews={videoReviews} />
-          </aside>
+      {/* Hero */}
+      <section className="relative w-full bg-gradient-to-br from-blue-50 via-purple-50 to-white">
+        <div className="mx-auto max-w-7xl px-4 py-8 md:py-12">
+          <Hero />
+          {videoReviews.length > 0 && (
+            <aside className="hidden md:flex md:items-center md:justify-center">
+              <PhonePreview reviews={videoReviews} />
+            </aside>
+          )}
         </div>
       </section>
 
@@ -81,7 +88,6 @@ export default async function HomePage() {
             Browse all →
           </Link>
         </div>
-
         {businesses.length === 0 ? (
           <EmptyState />
         ) : (

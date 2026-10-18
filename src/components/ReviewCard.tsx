@@ -1,52 +1,70 @@
-import { StarRating } from '@/components/ui/StarRating';
-import { relativeTime } from '@/lib/utils';
-import { Play } from 'lucide-react';
+import { TierBadge } from './TierBadge'
 
 interface ReviewCardProps {
+  reviewId: string;
   rating: number;
-  text:   string;
-  tags?:  string[];
+  text?: string;
   createdAt?: string;
-  author?: { display_name: string | null; handle: string | null } | null;
+  author?: { display_name: string | null; handle: string | null; tier?: string | null } | null;
   hasVideo?: boolean;
+  businessName?: string;
+  category?: string;
 }
 
-export function ReviewCard({ rating, text, tags, createdAt, author, hasVideo }: ReviewCardProps) {
-  const initial = (author?.display_name ?? author?.handle ?? 'U')[0]?.toUpperCase() ?? 'U';
+const VERDICT: Record<number, { label: string; emoji: string; color: string }> = {
+  5: { label: 'Loved it', emoji: '👍', color: '#22c55e' },
+  3: { label: "It's okay", emoji: '😐', color: '#eab308' },
+  1: { label: 'Nope',     emoji: '👎', color: '#ef4444' },
+}
+
+export function ReviewCard({ reviewId, rating, text, author, hasVideo, businessName, category }: ReviewCardProps) {
+  const verdict = VERDICT[rating] ?? VERDICT[3]
+  const displayName = author?.display_name ?? author?.handle ?? 'Anonymous'
+
+  const bizLine = [businessName, category].filter(Boolean).join(' · ')
+
   return (
-    <article className="rounded-2xl border border-stone-200 bg-white p-4">
-      <header className="mb-2 flex items-center gap-3">
-        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-royal-gradient text-sm font-black text-white">
-          {initial}
-        </div>
-        <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-black text-royal-900">
-              {author?.display_name ?? author?.handle ?? 'Anonymous'}
-            </span>
-            {hasVideo && (
-              <span className="inline-flex items-center gap-0.5 rounded-full bg-gold-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-gold-700">
-                <Play size={9} fill="currentColor" /> Video
-              </span>
-            )}
-          </div>
-          <span className="text-[11px] text-stone-500">{createdAt ? relativeTime(createdAt) : ''}</span>
-        </div>
-        <StarRating value={rating} size={13} label={false} />
-        <span className="text-xs font-bold text-gold-600">{rating}/5</span>
-      </header>
+    <a
+      href={`/r/${reviewId}`}
+      className="block rounded-2xl overflow-hidden border border-white/10 bg-[#0D1117] hover:border-white/20 transition-colors"
+    >
+      {/* Header */}
+      <div className="px-4 pt-4 pb-2 flex items-center gap-2 flex-wrap">
+        <span className="text-xs font-semibold text-white/90">{displayName}</span>
+        {author?.tier && <TierBadge tier={author.tier as any} variant="dark" />}
+        <span className="text-xs text-[#FF7A00] font-semibold">· Reviewencer</span>
+        {hasVideo && (
+          <span className="ml-auto text-[10px] font-bold uppercase tracking-wide text-amber-400">▶ Video</span>
+        )}
+      </div>
 
-      <p className="whitespace-pre-line text-[14px] leading-relaxed text-royal-900/85">{text}</p>
+      {/* Verdict */}
+      <div className="px-4 pb-2">
+        <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold"
+          style={{ backgroundColor: verdict.color + '22', color: verdict.color }}>
+          {verdict.emoji} {verdict.label}
+        </span>
+      </div>
 
-      {tags && tags.length > 0 && (
-        <div className="mt-3 flex flex-wrap gap-1">
-          {tags.map((t) => (
-            <span key={t} className="rounded-full bg-royal-50 px-2 py-0.5 text-[10px] font-bold text-royal-700">
-              #{t}
-            </span>
-          ))}
+      {/* Business / category */}
+      {bizLine && (
+        <div className="px-4 pb-2 text-xs text-white/50">
+          <span className="text-white/80 font-semibold">{businessName}</span>
+          {category && <span> · {category}</span>}
         </div>
       )}
-    </article>
-  );
+
+      {/* Review text */}
+      {text && (
+        <p className="px-4 pb-3 text-[13px] leading-relaxed text-white/70 line-clamp-3">
+          &ldquo;{text}&rdquo;
+        </p>
+      )}
+
+      {/* Footer */}
+      <div className="px-4 py-2 border-t border-white/5 text-[11px] text-white/30">
+        🔗 reviewencer.com
+      </div>
+    </a>
+  )
 }

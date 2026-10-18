@@ -28,7 +28,7 @@ export async function GET(req: Request) {
     .select(`
       id, rating, text, tags, moderation_status, moderation_rationale,
       risk_categories, video_url, transcript_source, created_at,
-      business:businesses(id, slug, name, category_id),
+      business:businesses(id, slug, name:name_en, category:categories(slug)),
       author:profiles(id, handle, display_name)
     `)
     .eq('moderation_status', status)

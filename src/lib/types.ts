@@ -48,12 +48,11 @@ export interface Business {
   id: string;
   slug: string;
   name: string;
-  category_id: string;
+  category_id: string;      // category slug
+  category_label: string;
   tagline: string | null;
-  logo_emoji: string | null;
-  brand_color: string | null;
+  logo_url: string | null;
   verified: boolean;
-  created_at: string;
 }
 
 export interface Review {
@@ -120,10 +119,10 @@ export interface BusinessCard {
   slug: string;
   name: string;
   tagline: string | null;
-  logo_emoji: string | null;
-  brand_color: string | null;
+  logo_url: string | null;
   verified: boolean;
-  category_id: string;
+  category_id: string;      // category slug
+  category_label: string;
   ai_headline: string;
   sentiment: number;
   review_count: number;

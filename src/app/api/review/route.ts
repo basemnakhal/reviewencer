@@ -82,7 +82,7 @@ export async function POST(req: Request) {
 
   // Business name for moderator context
   const svc = createSupabaseServiceClient();
-  const { data: biz } = await svc.from('businesses').select('name').eq('id', body.businessId).single();
+  const { data: biz } = await svc.from('businesses').select('name:name_en').eq('id', body.businessId).single();
 
   // Run legal moderation synchronously — the user deserves an immediate verdict
   const verdict = await moderateAndRecord(inserted.id, biz?.name ?? 'Unknown', text, body.rating);

@@ -2,6 +2,8 @@ import { PhonePreview } from '@/components/PhonePreview';
 import { ReviewCard } from '@/components/ReviewCard';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import type { VideoReviewCardData } from '@/components/VideoReviewCard';
+import { categoryLabel } from '@/lib/categories';
+
 
 export const revalidate = 30;
 export const metadata = { title: 'Feed — Reviewencer' };
@@ -32,7 +34,7 @@ export default async function FeedPage() {
     business: {
       name:     r.business_name,
       slug:     r.business_slug,
-      emoji:    r.business_logo_emoji,
+      logo:     r.business_logo_url,
       verified: r.business_verified,
     },
     likes:    r.like_count ?? 0,
@@ -64,12 +66,14 @@ export default async function FeedPage() {
               {all.slice(0, 20).map((r) => (
                 <ReviewCard
                   key={r.id}
+                  reviewId={r.id}
                   rating={r.rating}
                   text={r.text}
-                  tags={r.tags}
                   createdAt={r.published_at ?? r.created_at}
-                  author={{ display_name: r.author_display_name, handle: r.author_handle }}
+                  author={{ display_name: r.author_display_name, handle: r.author_handle, tier: r.author_tier }}
                   hasVideo={!!r.video_url}
+                  businessName={r.business_name}
+                  category={categoryLabel(r.business_category_id) || undefined}
                 />
               ))}
             </div>
