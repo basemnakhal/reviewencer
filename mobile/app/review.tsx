@@ -11,7 +11,7 @@ import {
   TouchableOpacity, View,
 } from 'react-native'
 import Svg, { Circle, Line, Path } from 'react-native-svg'
-import { processReview } from '../lib/ai'
+import { type ModerationResult, moderateReview, processReview } from '../lib/ai'
 import { BusinessLogo } from '../components/BusinessLogo'
 import { useLanguage } from '../lib/i18n'
 import { type Category, getCategoryLabel } from '../lib/categories'
@@ -68,6 +68,7 @@ export default function ReviewScreen() {
   const [uploadStep, setUploadStep] = useState('')
   const [done, setDone] = useState(false)
   const [reviewId, setReviewId] = useState<string | null>(null)
+  const [moderation, setModeration] = useState<ModerationResult | null>(null)
   const [bizCategory, setBizCategory] = useState('')
   const [reviewerName, setReviewerName] = useState('You')
 
@@ -197,6 +198,14 @@ export default function ReviewScreen() {
 
       if (error) { Alert.alert(t('error'), error.message); setSubmitting(false); return }
       setReviewId(data?.id ?? null)
+
+      // If moderation fails the review stays pending and the screen says it's under review.
+      setUploadStep('Checking your review…')
+      try {
+        setModeration(await moderateReview(data.id))
+      } catch (e: any) {
+        console.error('Moderation failed:', e)
+      }
       setDone(true)
     } catch (e: any) {
       Alert.alert(t('error'), e.message)
@@ -208,8 +217,12 @@ export default function ReviewScreen() {
   if (done) {
     const isVideo = !!videoUri
     const isText = textExpanded && text.length > 0
-    const successTitle = isVideo ? t('videoSubmitted') : isText ? t('textSubmitted') : t('ratingSubmitted')
-    const successSub = isVideo ? t('videoSubmittedSub') : isText ? t('textSubmittedSub') : t('ratingSubmittedSub')
+    const rejected = moderation?.status === 'rejected'
+    const successTitle = rejected ? t('reviewRejectedTitle')
+      : isVideo ? t('videoSubmitted') : isText ? t('textSubmitted') : t('ratingSubmitted')
+    const successSub = rejected ? moderation.rationale
+      : moderation?.status === 'published' ? (isText || isVideo ? t('reviewLiveSub') : t('ratingSubmittedSub'))
+      : t('reviewFlaggedSub')
 
     const verdictThumb = THUMBS.find(th => th.v === thumb) ?? THUMBS[1]
     const shareData: ShareData = {
@@ -231,7 +244,14 @@ export default function ReviewScreen() {
           <Text style={[styles.successTitle, isRTL && { textAlign: 'center' }]}>{successTitle}</Text>
           <Text style={[styles.successSub, isRTL && { textAlign: 'center' }]}>{successSub}</Text>
 
-          {isVideo && (
+          {rejected && !!moderation.suggested_edit && (
+            <View style={[styles.captionBox, rtl]}>
+              <Text style={[styles.captionLabel, isRTL && { textAlign: 'right' }]}>{t('suggestedEdit')}</Text>
+              <Text style={[styles.captionText, isRTL && { textAlign: 'right' }]}>{moderation.suggested_edit}</Text>
+            </View>
+          )}
+
+          {isVideo && !rejected && (
             <>
               <View style={[styles.captionBox, rtl]}>
                 <Text style={[styles.captionLabel, isRTL && { textAlign: 'right' }]}>{t('captionWhenSharing')}</Text>
@@ -253,7 +273,7 @@ export default function ReviewScreen() {
             </LinearGradient>
           </TouchableOpacity>
 
-          {isVideo && (
+          {isVideo && !rejected && (
             <TouchableOpacity onPress={() => router.replace('/tabs/feed')}>
               <Text style={styles.skipText}>{t('skipSharing')}</Text>
             </TouchableOpacity>
