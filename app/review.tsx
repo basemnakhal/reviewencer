@@ -148,12 +148,13 @@ export default function ReviewScreen() {
       if (!session) { router.replace('/auth/phone'); return }
 
       const fileBase = `${session.user.id}_${Date.now()}`
+      const videoPath = `videos/${fileBase}.mp4`
       let video_url: string | null = null
       let thumbnail_url: string | null = null
 
       if (videoUri) {
         setUploadStep('Uploading video…')
-        video_url = await uploadToStorage(videoUri, `videos/${fileBase}.mp4`, 'video/mp4', session.access_token)
+        video_url = await uploadToStorage(videoUri, videoPath, 'video/mp4', session.access_token)
 
         setUploadStep('Analysing your review…')
       }
@@ -164,7 +165,7 @@ export default function ReviewScreen() {
 
       if (videoUri) {
         try {
-          const result = await processReview(videoUri, businessName)
+          const result = await processReview(videoPath, businessName)
           transcript_en = result.transcript_en
           transcript_ar = result.transcript_ar
           ai_likes_en = result.ai_likes_en
