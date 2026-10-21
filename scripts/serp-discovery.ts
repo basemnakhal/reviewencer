@@ -9,7 +9,7 @@
  *
  * Paced to 900 searches/hour by default (--per-hour N); the plan's hard limit is 1,000/hour.
  *
- * Runs: pilot-dubai (done), full-uae. Re-running is free for searches already saved — existing
+ * Runs: pilot-dubai, full-uae, northern-emirates, more-areas, chains (built from full-uae results). Re-running is free for searches already saved — existing
  * response files are reused, so an interrupted run just continues. Requires SERPAPI_KEY in .env.local.
  */
 import { config } from 'dotenv';
@@ -36,6 +36,65 @@ const AREAS: Location[] = [
 ];
 const CITIES: Location[] = [{ name: 'Dubai', city: '' }, { name: 'Abu Dhabi', city: '' }, { name: 'Sharjah', city: '' }];
 
+// Dense, everyday places — searched per area with 2 pages.
+const DENSE: Cat[] = [
+  { slug: 'restaurants', query: 'restaurants' }, { slug: 'cafes', query: 'cafes' },
+  { slug: 'salons-spas', query: 'salon and spa' }, { slug: 'general-clinics', query: 'medical clinic' },
+  { slug: 'dental', query: 'dental clinic' }, { slug: 'sports-fitness', query: 'gym' },
+];
+// Common local places — searched per area with 1 page.
+const COMMON: Cat[] = [
+  { slug: 'bakeries-patisseries', query: 'bakery' }, { slug: 'sweets-desserts', query: 'dessert shop' },
+  { slug: 'juice-bars', query: 'juice bar' }, { slug: 'brunch-breakfast', query: 'breakfast restaurant' },
+  { slug: 'supermarkets', query: 'supermarket' }, { slug: 'pharmacies', query: 'pharmacy' },
+  { slug: 'opticians', query: 'optician' }, { slug: 'aesthetic-clinics', query: 'aesthetic clinic' },
+  { slug: 'specialty-clinics', query: 'specialist clinic' }, { slug: 'schools', query: 'private school' },
+  { slug: 'nurseries', query: 'nursery' }, { slug: 'family-entertainment', query: 'kids play area' },
+  { slug: 'hotels', query: 'hotel' }, { slug: 'garages', query: 'car service garage' },
+  { slug: 'car-wash', query: 'car wash' }, { slug: 'pets', query: 'pet shop' },
+  { slug: 'furniture', query: 'furniture store' }, { slug: 'florists', query: 'florist' },
+  { slug: 'tailors', query: 'tailor' }, { slug: 'electronics', query: 'electronics store' },
+  { slug: 'fashion', query: 'clothing store' },
+];
+// Emirates not in the `areas` table yet.
+const NORTHERN: Location[] = ['Ajman', 'Ras Al Khaimah', 'Fujairah', 'Umm Al Quwain'].map(name => ({ name, city: '' }));
+// Dense residential/commercial neighbourhoods missing from the `areas` table.
+const EXTRA_AREAS: Location[] = [
+  ...['Karama', 'Al Nahda', 'Al Qusais', 'Al Satwa', 'Oud Metha', 'Al Rigga', 'Al Garhoud', 'Jebel Ali',
+    'Dubai South', 'Dubai Sports City', 'Meydan', 'Al Warqa', 'Al Mizhar'].map(name => ({ name, city: 'Dubai' })),
+  ...['Al Qasimia', 'University City', 'Al Yarmook'].map(name => ({ name, city: 'Sharjah' })),
+];
+
+/**
+ * Chains: names seen at 4+ separate places in the full-uae results. Each chain is searched once per
+ * main city to collect all its branches (for brand → branches). Files are prefixed with the chain's
+ * most common category slug so the tracker counts them there.
+ */
+function chainGroups(): Group[] {
+  const dir = join('data', 'serp', 'full-uae');
+  if (!existsSync(dir)) return [];
+  const seen = new Map<string, { display: string; slugs: Map<string, number>; ids: Set<string> }>();
+  for (const f of readdirSync(dir).filter(f => /__p\d+\.json$/.test(f))) {
+    const slug = f.split('__')[0];
+    for (const r of JSON.parse(readFileSync(join(dir, f), 'utf8')).local_results ?? []) {
+      const display = String(r.title).split(/\s[-|–(@,]\s?|\s\|/)[0].trim();
+      const key = display.toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
+      if (key.length < 3) continue;
+      const e = seen.get(key) ?? { display, slugs: new Map(), ids: new Set() };
+      e.ids.add(r.place_id ?? r.data_id);
+      e.slugs.set(slug, (e.slugs.get(slug) ?? 0) + 1);
+      seen.set(key, e);
+    }
+  }
+  const chains = [...seen.values()].filter(e => e.ids.size >= 4).sort((a, b) => b.ids.size - a.ids.size).slice(0, 70);
+  const bySlug = new Map<string, Cat[]>();
+  for (const c of chains) {
+    const slug = [...c.slugs.entries()].sort((a, b) => b[1] - a[1])[0][0];
+    bySlug.set(slug, [...(bySlug.get(slug) ?? []), { slug: `${slug}~${c.display.replace(/\W+/g, '-')}`, query: c.display }]);
+  }
+  return [{ pages: 1, locations: CITIES, cats: [...bySlug.values()].flat() }];
+}
+
 const RUNS: Record<string, Group[]> = {
   'pilot-dubai': [{
     cats: [{ slug: 'restaurants', query: 'restaurants' }, { slug: 'dental', query: 'dental clinic' }],
@@ -46,28 +105,8 @@ const RUNS: Record<string, Group[]> = {
     pages: 2,
   }],
   'full-uae': [
-    { // Dense, everyday places: every area, 2 pages (≈40 results).
-      pages: 2, locations: AREAS, cats: [
-        { slug: 'restaurants', query: 'restaurants' }, { slug: 'cafes', query: 'cafes' },
-        { slug: 'salons-spas', query: 'salon and spa' }, { slug: 'general-clinics', query: 'medical clinic' },
-        { slug: 'dental', query: 'dental clinic' }, { slug: 'sports-fitness', query: 'gym' },
-      ],
-    },
-    { // Common local places: every area, 1 page.
-      pages: 1, locations: AREAS, cats: [
-        { slug: 'bakeries-patisseries', query: 'bakery' }, { slug: 'sweets-desserts', query: 'dessert shop' },
-        { slug: 'juice-bars', query: 'juice bar' }, { slug: 'brunch-breakfast', query: 'breakfast restaurant' },
-        { slug: 'supermarkets', query: 'supermarket' }, { slug: 'pharmacies', query: 'pharmacy' },
-        { slug: 'opticians', query: 'optician' }, { slug: 'aesthetic-clinics', query: 'aesthetic clinic' },
-        { slug: 'specialty-clinics', query: 'specialist clinic' }, { slug: 'schools', query: 'private school' },
-        { slug: 'nurseries', query: 'nursery' }, { slug: 'family-entertainment', query: 'kids play area' },
-        { slug: 'hotels', query: 'hotel' }, { slug: 'garages', query: 'car service garage' },
-        { slug: 'car-wash', query: 'car wash' }, { slug: 'pets', query: 'pet shop' },
-        { slug: 'furniture', query: 'furniture store' }, { slug: 'florists', query: 'florist' },
-        { slug: 'tailors', query: 'tailor' }, { slug: 'electronics', query: 'electronics store' },
-        { slug: 'fashion', query: 'clothing store' },
-      ],
-    },
+    { pages: 2, locations: AREAS, cats: DENSE },   // ≈40 results per area
+    { pages: 1, locations: AREAS, cats: COMMON },  // ≈20 results per area
     { // Sparser or destination places: per city, 4 pages (≈80 results).
       pages: 4, locations: CITIES, cats: [
         { slug: 'hospitals', query: 'private hospital' }, { slug: 'wellness', query: 'wellness center' },
@@ -90,6 +129,13 @@ const RUNS: Record<string, Group[]> = {
       ],
     },
   ],
+  'northern-emirates': [
+    { pages: 2, locations: NORTHERN, cats: [...DENSE, ...COMMON] },
+  ],
+  'more-areas': [
+    { pages: 1, locations: EXTRA_AREAS, cats: [...DENSE, ...COMMON] },
+  ],
+  get chains() { return chainGroups(); },
 };
 
 const args = process.argv.slice(2);
@@ -183,7 +229,7 @@ function summarise() {
   const byPlace = new Map<string, any>();
   let raw = 0;
   for (const f of readdirSync(OUT).filter(f => /__p\d+\.json$/.test(f))) {
-    const slug = f.split('__')[0];
+    const slug = f.split('__')[0].split('~')[0]; // chain files are "<category>~<chain>__…
     for (const r of JSON.parse(readFileSync(join(OUT, f), 'utf8')).local_results ?? []) {
       raw++;
       const id = r.place_id ?? r.data_id ?? `${r.title}|${r.address}`;

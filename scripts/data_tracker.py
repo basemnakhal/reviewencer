@@ -114,7 +114,7 @@ for run_dir in sorted(glob.glob(os.path.join(SERP_DIR, '*'))):
     spent, found, mtimes = 0, set(), []
     for f in files:
         data = json.load(open(f, encoding='utf-8'))
-        slug = os.path.basename(f).split('__')[0]
+        slug = os.path.basename(f).split('__')[0].split('~')[0]  # chain files: <category>~<chain>__…
         if 'search_metadata' in data:  # a real (paid) search, not a "no next page" placeholder
             spent += 1
             serp_searches[slug] += 1
