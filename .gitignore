@@ -38,3 +38,6 @@ next-env.d.ts
 
 # logs
 *.log
+
+# SerpAPI / scraped raw data (third-party content, not committed)
+/data/
