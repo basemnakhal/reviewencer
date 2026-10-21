@@ -65,18 +65,30 @@ const EXTRA_AREAS: Location[] = [
   ...['Al Qasimia', 'University City', 'Al Yarmook'].map(name => ({ name, city: 'Sharjah' })),
 ];
 
+// Abu Dhabi had far fewer areas than Dubai; these are its other big residential/commercial districts.
+const ABU_DHABI_EXTRA: Location[] = [
+  ...['Al Khalidiyah', 'Tourist Club Area', 'Al Nahyan', 'Al Muroor', 'Mohammed Bin Zayed City',
+    'Shakhbout City', 'Al Shamkha', 'Al Reef', 'Baniyas'].map(name => ({ name, city: 'Abu Dhabi' })),
+  ...['Al Jimi', 'Al Muwaiji', 'Hili'].map(name => ({ name, city: 'Al Ain' })),
+];
+
 /**
- * Chains: names seen at 4+ separate places in the full-uae results. Each chain is searched once per
+ * Chains: names seen at 4+ separate places in the given runs' results. Each chain is searched once per
  * main city to collect all its branches (for brand → branches). Files are prefixed with the chain's
  * most common category slug so the tracker counts them there.
+ *   chains   — top 70 from full-uae (fixed, already run)
+ *   chains-2 — next 110 from all runs, skipping chains already searched in `chains`
  */
-function chainGroups(): Group[] {
-  const dir = join('data', 'serp', 'full-uae');
-  if (!existsSync(dir)) return [];
+function chainGroups(runs: string[], take: number, skipRun?: string): Group[] {
+  const done = new Set(skipRun && existsSync(join('data', 'serp', skipRun))
+    ? readdirSync(join('data', 'serp', skipRun)).map(f => f.split('__')[0].split('~')[1]?.toLowerCase()) : []);
+  const files = runs.filter(r => existsSync(join('data', 'serp', r)))
+    .flatMap(r => readdirSync(join('data', 'serp', r)).filter(f => /__p\d+\.json$/.test(f)).map(f => join('data', 'serp', r, f)));
+  if (!files.length) return [];
   const seen = new Map<string, { display: string; slugs: Map<string, number>; ids: Set<string> }>();
-  for (const f of readdirSync(dir).filter(f => /__p\d+\.json$/.test(f))) {
-    const slug = f.split('__')[0];
-    for (const r of JSON.parse(readFileSync(join(dir, f), 'utf8')).local_results ?? []) {
+  for (const file of files) {
+    const slug = file.split(/[\\/]/).pop()!.split('__')[0].split('~')[0];
+    for (const r of JSON.parse(readFileSync(file, 'utf8')).local_results ?? []) {
       const display = String(r.title).split(/\s[-|–(@,]\s?|\s\|/)[0].trim();
       const key = display.toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
       if (key.length < 3) continue;
@@ -86,7 +98,9 @@ function chainGroups(): Group[] {
       seen.set(key, e);
     }
   }
-  const chains = [...seen.values()].filter(e => e.ids.size >= 4).sort((a, b) => b.ids.size - a.ids.size).slice(0, 70);
+  const chains = [...seen.values()]
+    .filter(e => e.ids.size >= 4 && !done.has(e.display.replace(/\W+/g, '-').toLowerCase()))
+    .sort((a, b) => b.ids.size - a.ids.size).slice(0, take);
   const bySlug = new Map<string, Cat[]>();
   for (const c of chains) {
     const slug = [...c.slugs.entries()].sort((a, b) => b[1] - a[1])[0][0];
@@ -135,7 +149,15 @@ const RUNS: Record<string, Group[]> = {
   'more-areas': [
     { pages: 1, locations: EXTRA_AREAS, cats: [...DENSE, ...COMMON] },
   ],
-  get chains() { return chainGroups(); },
+  get chains() { return chainGroups(['full-uae'], 70); },
+  // Batch 4
+  get 'northern-sparse'() { return [{ pages: 2, locations: NORTHERN, cats: RUNS['full-uae'][2].cats }]; },
+  'abu-dhabi-areas': [
+    { pages: 1, locations: ABU_DHABI_EXTRA, cats: [...DENSE, ...COMMON] },
+  ],
+  get 'chains-2'() {
+    return chainGroups(['full-uae', 'northern-emirates', 'more-areas', 'chains'], 110, 'chains');
+  },
 };
 
 const args = process.argv.slice(2);
