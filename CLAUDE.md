@@ -27,6 +27,10 @@ Nothing should depend on a local machine: code lives on GitHub, backend on Supab
 - Web compatibility views (`20261018150000_web_compat_views.sql`): `business_cards` and `feed_reviews` expose the new schema in the shape the web app reads (`name`, `logo_url`, `category_id` = category **slug**). `match_reviews()` filters by category slug.
 - `businesses` currently holds the 11,039 `source = 'legacy_import'` rows. `PHASE1_BUILD.md` describes the intended curated rebuild (Time Out + regulators + Google Places); phases C–F were never run. Swap legacy rows out when curated data exists.
 
+### Business data rebuild (Phase 1)
+- Discovery: `npx tsx scripts/serp-discovery.ts --max N` (SerpAPI Google Maps, ~16 unique places/search; raw results in gitignored `data/serp/<run>/`, never committed). Use category **slugs** as the run's category keys.
+- Tracker: `python scripts/data_tracker.py` regenerates `docs/Reviewencer-data-tracker.xlsx` (per-category DB completeness + discovery stats + SerpAPI budget). It keeps the user's Status/Target/Notes columns — regenerate after every discovery batch or import, and commit it.
+
 ## Web app (root)
 
 - `npx pnpm@9 install`, `npx pnpm@9 build`, `npx pnpm@9 dev` (pnpm lockfile). Env in `.env.local` (see `.env.example`); scripts in `scripts/` read keys from `.env.local` — never hardcode keys.
