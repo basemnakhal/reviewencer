@@ -29,7 +29,10 @@ from openpyxl.worksheet.datavalidation import DataValidation
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, 'docs', 'Reviewencer-data-tracker.xlsx')
 SERP_DIR = os.path.join(ROOT, 'data', 'serp')
-STATUSES = ['Not started', 'Pilot', 'Discovering', 'Discovered', 'Imported', 'Live', 'Excluded']
+STATUSES = ['Not started', 'Manual list', 'Discovering', 'Discovered', 'Imported', 'Live', 'Excluded']
+AUTO_STATUSES = {None, '', 'Not started', 'Pilot', 'Discovering', 'Manual list'}  # the tracker may overwrite these
+# Online brands / non-map categories: curated by hand, not via Google Maps discovery.
+MANUAL_LIST = {'banks', 'insurance', 'telecom', 'delivery-rideshare', 'marketplaces', 'real-estate', 'holiday-homes'}
 
 
 def load_env():
@@ -194,8 +197,8 @@ for n, cat in enumerate(categories):
     d = db[cat['id']]
     places = serp_places.get(cat['slug'], {})
     status, target, notes = kept.get(cat['slug'], (None, None, None))
-    if not status:
-        status = 'Pilot' if places else 'Not started'
+    if status in AUTO_STATUSES:  # keep anything the user chose; refresh the automatic ones
+        status = 'Discovering' if places else 'Manual list' if cat['slug'] in MANUAL_LIST else 'Not started'
     values = ([cat['life_moment']['name_en'], cat['name_en'], cat['slug'], d[0]] + d[1:]
               + [f'=IFERROR(SUM({db_cols[0]}{r}:{db_cols[-1]}{r})/({len(DB_FIELDS)}*{c_db}{r}),0)', review_count[cat['id']],
                  serp_searches.get(cat['slug'], 0), len(places)]
